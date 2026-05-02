@@ -1,0 +1,23 @@
+{
+  "name": "e-commerce",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000e\u0000-\u0000c\u0000o\u0000m\u0000m\u0000e\u0000r\u0000c\u0000e\u0000\r\u0000 \u0000",
+  "homepage": "https://github.com/Ahonnish/e-commerce#readme",
+  "bugs": {
+    "url": "https://github.com/Ahonnish/e-commerce/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ahonnish/e-commerce.git"
+  },
+  "license": "ISC",
+  "author": "Ahonnish",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
