@@ -2,15 +2,14 @@ const jwt = require("jsonwebtoken");
 
 exports.protect = async (req, res, next) => {
   try {
-
     // get token from headers
     const authHeader = req.headers.authorization;
 
     // check token exists
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
-        message: "Unauthorized"
-      });
+      const error = new Error("Unauthorized");
+      error.statusCode = 401;
+      return next(error);
     }
 
     // extract token
@@ -23,12 +22,8 @@ exports.protect = async (req, res, next) => {
     req.user = decoded;
 
     next();
-
   } catch (error) {
-    console.error("Auth Middleware Error:", error);
-
-    return res.status(401).json({
-      message: "Invalid or expired token"
-    });
+    error.statusCode = 401;
+    next(error);
   }
 };
