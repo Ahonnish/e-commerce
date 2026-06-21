@@ -1,6 +1,10 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs"); // for signUp
 const jwt = require("jsonwebtoken"); // for login
+const appError = require("../utils/error");
+const logger = require("../utils/logger,js");
+
+const authLogger = logger.child({ module: "auth.controller" });
 
 exports.signup = async (req, res, next) => {
   try {
@@ -8,17 +12,21 @@ exports.signup = async (req, res, next) => {
 
     // validation
     if (!name || !email || !password) {
-      const error = new Error("All fields are required");
-      error.statusCode = 400;
-      return next(error);
+      // const error = new Error("All fields are required");
+      // error.statusCode = 400;
+      // return next(error);
+      authLogger.error({ name, email }, "All fields are required");
+      return next(appError("All fields are required", 400));
     }
 
     // check existing user
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      const error = new Error("User already exists");
-      error.statusCode = 400;
-      return next(error);
+      // const error = new Error("User already exists");
+      // error.statusCode = 400;
+      // return next(error);
+      authLogger.error({ email }, "User already exists");
+      return next(appError("User already exists", 400));
     }
 
     // hash password
@@ -40,8 +48,8 @@ exports.signup = async (req, res, next) => {
       },
     });
   } catch (error) {
-    error.statusCode = 500;
-    next(error);
+    authLogger.error({ err: error }, "Registration failed");
+    next(appError("Registration failed", 500));
   }
 };
 
@@ -51,25 +59,22 @@ exports.login = async (req, res, next) => {
 
     // validation
     if (!email || !password) {
-      const error = new Error("All fields are required");
-      error.statusCode = 400;
-      return next(error);
+      authLogger.error({ email }, "All fields are required");
+      return next(appError("All fields are required", 400));
     }
 
     // check if user exists
     const user = await User.findOne({ email });
     if (!user) {
-      const error = new Error("Invalid credentials");
-      error.statusCode = 400;
-      return next(error);
+      authLogger.error({ email }, "Invalid credentials");
+      return next(appError("Invalid credentials", 400));
     }
 
     // compare password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      const error = new Error("Invalid credentials");
-      error.statusCode = 400;
-      return next(error);
+      authLogger.error({ email }, "Invalid credentials");
+      return next(appError("Invalid credentials", 400));
     }
 
     // generate token
@@ -90,7 +95,7 @@ exports.login = async (req, res, next) => {
       },
     });
   } catch (error) {
-    error.statusCode = 500;
-    next(error);
+    authLogger.error({ err: error }, "Login failed");
+    next(appError("Login failed", 500));
   }
 };

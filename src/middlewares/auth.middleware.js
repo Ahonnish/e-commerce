@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const appError = require("../utils/error");
 
 exports.protect = async (req, res, next) => {
   try {
@@ -7,9 +8,10 @@ exports.protect = async (req, res, next) => {
 
     // check token exists
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      const error = new Error("Unauthorized");
-      error.statusCode = 401;
-      return next(error);
+      // const error = new Error("Unauthorized");
+      // error.statusCode = 401;
+      // return next(error);
+      throw appError("Unauthorized", 401);
     }
 
     // extract token
@@ -23,7 +25,6 @@ exports.protect = async (req, res, next) => {
 
     next();
   } catch (error) {
-    error.statusCode = 401;
-    next(error);
+    next(appError("Unauthorized", 401));
   }
 };
