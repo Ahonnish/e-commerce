@@ -1,8 +1,15 @@
+const sendResponse = require("../utils/response.handler");
+
 const getHealth = (req, res) => {
-  res.status(200).json({
+  return sendResponse({
+    res,
+    statusCode: 200,
     success: true,
+    code: "HEALTH_CHECK_SUCCESS",
     message: "Service is healthy",
-    timestamp: new Date().toISOString(),
+    data: {
+      timestamp: new Date().toISOString(),
+    },
   });
 };
 
