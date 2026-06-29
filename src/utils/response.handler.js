@@ -1,4 +1,4 @@
-const RESPONSE_CODES = require("./response.codes");
+const RESPONSE_CODES = require('./response.codes');
 
 const sendResponse = (req, res, next) => {
   if (res.headersSent) {
@@ -13,9 +13,13 @@ const sendResponse = (req, res, next) => {
 
   const { code, data = null, success = true } = responseObj;
   const message =
-    responseObj.message || (code ? RESPONSE_CODES[code]?.message : undefined) || "Success";
+    responseObj.message ||
+    (code ? RESPONSE_CODES[code]?.message : undefined) ||
+    'Success';
   const statusCode =
-    responseObj.statusCode || (code ? RESPONSE_CODES[code]?.statusCode : undefined) || 200;
+    responseObj.statusCode ||
+    (code ? RESPONSE_CODES[code]?.statusCode : undefined) ||
+    200;
 
   return res.status(statusCode).json({
     success,

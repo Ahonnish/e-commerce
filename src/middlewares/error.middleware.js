@@ -1,12 +1,13 @@
-const logger = require("../utils/logger.js");
+const logger = require('../utils/logger.js');
 
 const errorHandler = (err, req, res, next) => {
-  const requestBody = req.body && typeof req.body === "object"
-    ? {
-        name: req.body.name,
-        email: req.body.email,
-      }
-    : undefined;
+  const requestBody =
+    req.body && typeof req.body === 'object'
+      ? {
+          name: req.body.name,
+          email: req.body.email,
+        }
+      : undefined;
 
   logger.error(
     {
@@ -15,14 +16,14 @@ const errorHandler = (err, req, res, next) => {
       path: req.originalUrl,
       body: requestBody,
     },
-    err.message || "Unhandled error"
+    err.message || 'Unhandled error'
   );
 
   const statusCode = err.statusCode || 500;
 
   res.status(statusCode).json({
     success: false,
-    message: err.message || "Internal Server Error",
+    message: err.message || 'Internal Server Error',
   });
 };
 

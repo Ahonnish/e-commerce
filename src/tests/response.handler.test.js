@@ -1,12 +1,12 @@
-const sendResponse = require("../utils/response.handler");
+const sendResponse = require('../utils/response.handler');
 
-describe("sendResponse", () => {
-  it("should send a standardized success response from res.locals", () => {
+describe('sendResponse', () => {
+  it('should send a standardized success response from res.locals', () => {
     const req = {};
     const res = {
       locals: {
         response: {
-          code: "LOGIN_SUCCESS",
+          code: 'LOGIN_SUCCESS',
           data: {
             id: 1,
           },
@@ -24,8 +24,8 @@ describe("sendResponse", () => {
 
     expect(res.json).toHaveBeenCalledWith({
       success: true,
-      code: "LOGIN_SUCCESS",
-      message: "User logged in successfully",
+      code: 'LOGIN_SUCCESS',
+      message: 'User logged in successfully',
       data: {
         id: 1,
       },
@@ -34,15 +34,15 @@ describe("sendResponse", () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  it("should use null as default data when no data is provided", () => {
+  it('should use null as default data when no data is provided', () => {
     const req = {};
     const res = {
       locals: {
         response: {
-          code: "NOT_FOUND",
+          code: 'NOT_FOUND',
           success: false,
           statusCode: 404,
-          message: "Resource not found",
+          message: 'Resource not found',
         },
       },
       headersSent: false,
@@ -57,15 +57,15 @@ describe("sendResponse", () => {
 
     expect(res.json).toHaveBeenCalledWith({
       success: false,
-      code: "NOT_FOUND",
-      message: "Resource not found",
+      code: 'NOT_FOUND',
+      message: 'Resource not found',
       data: null,
     });
 
     expect(next).not.toHaveBeenCalled();
   });
 
-  it("should call next when no response payload exists", () => {
+  it('should call next when no response payload exists', () => {
     const req = {};
     const res = {
       locals: {},
@@ -82,11 +82,11 @@ describe("sendResponse", () => {
     expect(res.json).not.toHaveBeenCalled();
   });
 
-  it("should call next when headers were already sent", () => {
+  it('should call next when headers were already sent', () => {
     const req = {};
     const res = {
       locals: {
-        response: { code: "LOGIN_SUCCESS" },
+        response: { code: 'LOGIN_SUCCESS' },
       },
       headersSent: true,
       status: jest.fn().mockReturnThis(),

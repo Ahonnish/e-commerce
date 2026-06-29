@@ -1,8 +1,8 @@
-const User = require("../models/User");
-const bcrypt = require("bcryptjs"); // for signUp
-const jwt = require("jsonwebtoken"); // for login
-const appError = require("../utils/error");
-const logger = require("../utils/logger.js");
+const User = require('../models/User');
+const bcrypt = require('bcryptjs'); // for signUp
+const jwt = require('jsonwebtoken'); // for login
+const appError = require('../utils/error');
+const logger = require('../utils/logger.js');
 
 const authLogger = logger.child({ module: 'auth.controller' });
 
@@ -36,7 +36,7 @@ exports.signup = async (req, res, next) => {
         id: user._id,
         name: user.name,
         email: user.email,
-      }
+      },
     };
 
     return next();
