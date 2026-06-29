@@ -1,16 +1,16 @@
-const logger = require("../utils/logger");
+const logger = require('../utils/logger');
 
-const allowedEnvironments = ["local", "staging", "production"];
+const allowedEnvironments = ['local', 'staging', 'production'];
 
-const environment = process.env.NODE_ENV || "local";
+const environment = process.env.NODE_ENV || 'local';
 
 if (!allowedEnvironments.includes(environment)) {
   throw new Error(
-    `Invalid NODE_ENV: ${environment}. Allowed values are: ${allowedEnvironments.join(", ")}`
+    `Invalid NODE_ENV: ${environment}. Allowed values are: ${allowedEnvironments.join(', ')}`
   );
 }
 
-const requiredVariables = ["PORT", "MONGO_URI", "JWT_SECRET"];
+const requiredVariables = ['PORT', 'MONGO_URI', 'JWT_SECRET'];
 
 requiredVariables.forEach((variable) => {
   if (!process.env[variable]) {

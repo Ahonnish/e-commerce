@@ -1,4 +1,4 @@
-const { ZodError } = require("zod");
+const { ZodError } = require('zod');
 
 const validate = (schema) => {
   return (req, res, next) => {
@@ -8,7 +8,7 @@ const validate = (schema) => {
     } catch (error) {
       if (error instanceof ZodError) {
         const validationError = new Error(
-          error.issues.map((issue) => issue.message).join(", ")
+          error.issues.map((issue) => issue.message).join(', ')
         );
 
         validationError.statusCode = 400;
