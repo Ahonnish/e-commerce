@@ -1,16 +1,12 @@
-const sendResponse = require("../utils/response.handler");
-
-const getHealth = (req, res) => {
-  return sendResponse({
-    res,
-    statusCode: 200,
-    success: true,
+const getHealth = (req, res, next) => {
+  res.locals.response = {
     code: "HEALTH_CHECK_SUCCESS",
-    message: "Service is healthy",
     data: {
       timestamp: new Date().toISOString(),
     },
-  });
+  };
+
+  return next();
 };
 
 module.exports = { getHealth };

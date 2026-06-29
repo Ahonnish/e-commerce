@@ -3,7 +3,6 @@ const bcrypt = require('bcryptjs'); // for signUp
 const jwt = require('jsonwebtoken'); // for login
 const appError = require('../utils/error');
 const logger = require('../utils/logger,js');
-const sendResponse = require('../utils/response.handler');
 
 const authLogger = logger.child({ module: 'auth.controller' });
 
@@ -40,21 +39,19 @@ exports.signup = async (req, res, next) => {
       password: hashedPassword,
     });
 
-    return sendResponse({
-      res,
-      statusCode: 201,
-      success: true,
+    res.locals.response = {
       code: 'SIGNUP_SUCCESS',
-      message: 'User registered successfully',
       data: {
         id: user._id,
         name: user.name,
         email: user.email,
-      },
-    });
+      }
+    };
+
+    return next();
   } catch (error) {
     authLogger.error({ err: error }, 'Registration failed');
-    next(appError('Registration failed', 500));
+    return next(appError('Registration failed', 500));
   }
 };
 
@@ -87,18 +84,22 @@ exports.login = async (req, res, next) => {
       expiresIn: '1d',
     });
 
-    // send response
-    res.status(200).json({
-      message: 'Login successful',
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
+    // pass standardized response payload to common middleware
+    res.locals.response = {
+      code: 'LOGIN_SUCCESS',
+      data: {
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+        },
       },
-    });
+    };
+
+    return next();
   } catch (error) {
     authLogger.error({ err: error }, 'Login failed');
-    next(appError('Login failed', 500));
+    return next(appError('Login failed', 500));
   }
 };
