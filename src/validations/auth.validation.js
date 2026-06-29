@@ -8,6 +8,7 @@ const signupSchema = z.object({
 
   email: z
     .string()
+    .trim()
     .email("Please provide a valid email address"),
 
   password: z

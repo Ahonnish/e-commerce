@@ -8,7 +8,7 @@ const authLogger = logger.child({ module: 'auth.controller' });
 
 exports.signup = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password } = req.validatedBody;
 
     // check existing user
     const existingUser = await User.findOne({ email });
