@@ -1,23 +1,14 @@
-const User = require('../models/User');
-const bcrypt = require('bcryptjs'); // for signUp
-const jwt = require('jsonwebtoken'); // for login
-const appError = require('../utils/error');
-const logger = require('../utils/logger,js');
+const User = require("../models/User");
+const bcrypt = require("bcryptjs"); // for signUp
+const jwt = require("jsonwebtoken"); // for login
+const appError = require("../utils/error");
+const logger = require("../utils/logger.js");
 
 const authLogger = logger.child({ module: 'auth.controller' });
 
 exports.signup = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
-
-    // validation
-    if (!name || !email || !password) {
-      // const error = new Error("All fields are required");
-      // error.statusCode = 400;
-      // return next(error);
-      authLogger.error({ name, email }, 'All fields are required');
-      return next(appError('All fields are required', 400));
-    }
+    const { name, email, password } = req.validatedBody;
 
     // check existing user
     const existingUser = await User.findOne({ email });
