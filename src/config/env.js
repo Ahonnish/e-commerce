@@ -1,5 +1,3 @@
-const path = require("path");
-const dotenv = require("dotenv");
 const logger = require("../utils/logger");
 
 const allowedEnvironments = ["local", "staging", "production"];
@@ -12,20 +10,7 @@ if (!allowedEnvironments.includes(environment)) {
   );
 }
 
-const envFile = path.resolve(process.cwd(), `.env.${environment}`);
-
-const result = dotenv.config({ path: envFile });
-
-if (result.error) {
-  throw new Error(`Failed to load environment file: .env.${environment}`);
-}
-
-// Validate required environment variables
-const requiredVariables = [
-  "PORT",
-  "MONGO_URI",
-  "JWT_SECRET",
-];
+const requiredVariables = ["PORT", "MONGO_URI", "JWT_SECRET"];
 
 requiredVariables.forEach((variable) => {
   if (!process.env[variable]) {
@@ -34,3 +19,5 @@ requiredVariables.forEach((variable) => {
 });
 
 logger.info(`Environment loaded: ${environment}`);
+
+module.exports = { environment };
