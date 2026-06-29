@@ -1,9 +1,12 @@
-const getHealth = (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Service is healthy",
-    timestamp: new Date().toISOString(),
-  });
+const getHealth = (req, res, next) => {
+  res.locals.response = {
+    code: "HEALTH_CHECK_SUCCESS",
+    data: {
+      timestamp: new Date().toISOString(),
+    },
+  };
+
+  return next();
 };
 
 module.exports = { getHealth };
