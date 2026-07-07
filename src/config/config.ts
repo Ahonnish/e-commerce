@@ -12,6 +12,8 @@ const sharedConfig = {
   mongoUri: env.MONGO_URI,
   jwtSecret: env.JWT_SECRET,
   jwtExpiresIn: env.JWT_EXPIRES_IN,
+  jwtAudience: env.JWT_AUDIENCE,
+  jwtIssuer: env.JWT_ISSUER,
   bcryptSaltRounds: env.BCRYPT_SALT_ROUNDS,
 };
 

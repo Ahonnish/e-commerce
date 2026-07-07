@@ -4,6 +4,7 @@ export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
+  role: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -22,6 +23,11 @@ const userSchema = new mongoose.Schema<IUser>(
     password: {
       type: String,
       required: true,
+    },
+    role: {
+      type: String,
+      required: true,
+      default: 'customer',
     },
   },
   { timestamps: true }

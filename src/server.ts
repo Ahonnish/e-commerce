@@ -3,10 +3,14 @@ import config from './config/config';
 import connectDB from './database';
 import logger from './utils/logger';
 
-void connectDB();
-
 const PORT = config.port;
 
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
+const startServer = async (): Promise<void> => {
+  await connectDB();
+
+  app.listen(PORT, () => {
+    logger.info(`Server running on port ${PORT}`);
+  });
+};
+
+void startServer();

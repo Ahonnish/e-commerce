@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
+import { jwtUserPayloadSchema } from '../types';
 import appError from '../utils/error';
 
 const protect = async (
@@ -24,10 +25,18 @@ const protect = async (
     const token = authHeader.split(' ')[1];
 
     // verify token
-    const decoded = jwt.verify(token, config.jwtSecret);
+    const decoded = jwt.verify(token, config.jwtSecret, {
+      audience: config.jwtAudience,
+      issuer: config.jwtIssuer,
+    });
+    const parsedPayload = jwtUserPayloadSchema.safeParse(decoded);
+
+    if (!parsedPayload.success) {
+      throw appError('Unauthorized', 401);
+    }
 
     // attach user data to request
-    req.user = decoded;
+    req.user = parsedPayload.data;
 
     next();
   } catch (error) {

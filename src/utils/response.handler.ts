@@ -1,31 +1,27 @@
-import type { RequestHandler } from 'express';
-import type { ApiResponseBody, ResponsePayload } from '../types';
+import type { NextFunction, RequestHandler, Response } from 'express';
+import type { ApiResponseBody } from '../types';
+import type { ResponsePayload } from '../types';
 import { getResponseCodePreset } from './response.codes';
 
-interface SendResponseResult<TData = unknown> {
-  headersSent: boolean;
-  locals: {
-    response?: ResponsePayload<TData>;
-  };
-  status: (statusCode: number) => {
-    json: (body: ApiResponseBody<TData>) => unknown;
-  };
-}
+type StructuredResponse<TData = unknown> = Response<
+  ApiResponseBody<TData>,
+  { response?: ResponsePayload<TData> }
+>;
 
-type SendResponseNext = (error?: unknown) => void;
-
-const handleStructuredResponse = (
-  res: SendResponseResult,
-  next: SendResponseNext
+const handleStructuredResponse = <TData = unknown>(
+  res: StructuredResponse<TData>,
+  next: NextFunction
 ): void => {
   if (res.headersSent) {
-    return next();
+    next();
+    return;
   }
 
   const responseObj = res.locals.response;
 
   if (!responseObj) {
-    return next();
+    next();
+    return;
   }
 
   const { code, data = null, success = true } = responseObj;

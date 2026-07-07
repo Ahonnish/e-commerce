@@ -3,7 +3,7 @@ import type { JwtUserPayload, ResponsePayload } from './index';
 declare global {
   namespace Express {
     interface Request {
-      user?: JwtUserPayload | string;
+      user?: JwtUserPayload;
     }
 
     interface Locals {

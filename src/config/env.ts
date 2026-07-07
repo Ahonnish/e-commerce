@@ -26,6 +26,8 @@ const envSchema = z.object({
   MONGO_URI: z.string().min(1, 'MONGO_URI is required'),
   JWT_SECRET: z.string().min(1, 'JWT_SECRET is required'),
   JWT_EXPIRES_IN: z.coerce.number().int().positive().default(86400),
+  JWT_AUDIENCE: z.string().min(1).default('e-commerce-api'),
+  JWT_ISSUER: z.string().min(1).default('e-commerce'),
   BCRYPT_SALT_ROUNDS: z.coerce.number().int().positive().default(10),
 });
 
@@ -39,15 +41,21 @@ if (!parsedEnv.success) {
 
 const env = parsedEnv.data;
 
+type NodeEnvironment = EnvConfig['NODE_ENV'];
 type RuntimeEnvironment = 'local' | 'staging' | 'production';
 
-const environment: RuntimeEnvironment =
-  env.NODE_ENV === 'staging' || env.NODE_ENV === 'production'
-    ? env.NODE_ENV
-    : 'local';
+const runtimeEnvironmentMap: Record<NodeEnvironment, RuntimeEnvironment> = {
+  local: 'local',
+  development: 'local',
+  test: 'local',
+  staging: 'staging',
+  production: 'production',
+};
+
+const environment = runtimeEnvironmentMap[env.NODE_ENV];
 
 logger.info(`Environment loaded: ${environment}`);
 
 export type EnvConfig = z.infer<typeof envSchema>;
-export type { RuntimeEnvironment };
+export type { NodeEnvironment, RuntimeEnvironment };
 export { env, environment };

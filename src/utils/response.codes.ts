@@ -19,13 +19,17 @@ const RESPONSE_CODES: Record<ResponseCode, ResponseCodePreset> = {
     statusCode: StatusCodes.NOT_FOUND,
     message: 'Resource not found',
   },
+  [ResponseCode.OK]: {
+    statusCode: StatusCodes.OK,
+    message: 'Success'
+  }
 };
 
 const getResponseCodePreset = (
   code: ResponseCode | undefined
 ): ResponseCodePreset | undefined => {
   if (!code) {
-    return undefined;
+    return RESPONSE_CODES.OK
   }
 
   return RESPONSE_CODES[code];

@@ -1,33 +1,35 @@
+import type { Response } from 'express';
 import { handleStructuredResponse } from '../utils/response.handler';
+import type { ApiResponseBody, ResponsePayload } from '../types';
 import { ResponseCode } from '../types';
 
 type MockNext = jest.Mock<void, [unknown?]>;
 
 type MockResponse = {
   locals: {
-    response?: {
-      code?: ResponseCode;
-      success?: boolean;
-      statusCode?: number;
-      message?: string;
-      data?: unknown;
-    };
+    response?: ResponsePayload;
   };
   headersSent: boolean;
-  status: jest.Mock<{ json: jest.Mock }, [number]>;
+  status: jest.Mock<MockResponse, [number]>;
   json: jest.Mock;
 };
 
 const createMockResponse = (
   response?: MockResponse['locals']['response']
-): MockResponse => {
-  const json = jest.fn();
-  return {
+): Response<ApiResponseBody, { response?: ResponsePayload }> => {
+  const mockResponse: MockResponse = {
     locals: response ? { response } : {},
     headersSent: false,
-    status: jest.fn().mockReturnValue({ json }),
-    json,
+    status: jest.fn(),
+    json: jest.fn(),
   };
+
+  mockResponse.status.mockReturnValue(mockResponse);
+
+  return mockResponse as unknown as Response<
+    ApiResponseBody,
+    { response?: ResponsePayload }
+  >;
 };
 
 describe('sendResponse', () => {
@@ -44,7 +46,7 @@ describe('sendResponse', () => {
 
     expect(res.status).toHaveBeenCalledWith(200);
 
-    expect(res.status.mock.results[0]?.value.json).toHaveBeenCalledWith({
+    expect(res.json).toHaveBeenCalledWith({
       success: true,
       code: ResponseCode.LOGIN_SUCCESS,
       message: 'User logged in successfully',
@@ -69,7 +71,7 @@ describe('sendResponse', () => {
 
     expect(res.status).toHaveBeenCalledWith(404);
 
-    expect(res.status.mock.results[0]?.value.json).toHaveBeenCalledWith({
+    expect(res.json).toHaveBeenCalledWith({
       success: false,
       code: ResponseCode.NOT_FOUND,
       message: 'Resource not found',

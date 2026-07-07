@@ -7,8 +7,6 @@ import { ResponseCode } from '../types';
 import appError from '../utils/error';
 import logger from '../utils/logger';
 import {
-  loginSchema,
-  signupSchema,
   type LoginDto,
   type SignupDto,
 } from '../validations/auth.validation';
@@ -23,18 +21,7 @@ const signup = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const parsedBody = signupSchema.safeParse(req.body);
-    if (!parsedBody.success) {
-      next(
-        appError(
-          parsedBody.error.issues.map((issue) => issue.message).join(', '),
-          400
-        )
-      );
-      return;
-    }
-
-    const { name, email, password } = parsedBody.data;
+    const { name, email, password } = req.body;
 
     // check existing user
     const existingUser = await User.findOne({ email });
@@ -63,6 +50,7 @@ const signup = async (
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
     };
 
@@ -80,18 +68,7 @@ const login = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const parsedBody = loginSchema.safeParse(req.body);
-    if (!parsedBody.success) {
-      next(
-        appError(
-          parsedBody.error.issues.map((issue) => issue.message).join(', '),
-          400
-        )
-      );
-      return;
-    }
-
-    const { email, password } = parsedBody.data;
+    const { email, password } = req.body;
 
     // check if user exists
     const user = await User.findOne({ email });
@@ -110,9 +87,19 @@ const login = async (
     }
 
     // generate token
-    const token = jwt.sign({ id: user._id }, config.jwtSecret, {
-      expiresIn: config.jwtExpiresIn,
-    });
+    const token = jwt.sign(
+      {
+        role: user.role,
+        email: user.email,
+      },
+      config.jwtSecret,
+      {
+        expiresIn: config.jwtExpiresIn,
+        subject: String(user._id),
+        audience: config.jwtAudience,
+        issuer: config.jwtIssuer,
+      }
+    );
 
     // pass standardized response payload to common middleware
     res.locals.response = {
@@ -123,6 +110,7 @@ const login = async (
           id: user._id,
           name: user.name,
           email: user.email,
+          role: user.role,
         },
       },
     };
