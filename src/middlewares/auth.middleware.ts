@@ -1,7 +1,14 @@
-const jwt = require('jsonwebtoken');
-const appError = require('../utils/error');
+import type { NextFunction, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
+import config from '../config/config';
+import appError from '../utils/error';
 
-exports.protect = async (req, res, next) => {
+const protect = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  void res;
   try {
     // get token from headers
     const authHeader = req.headers.authorization;
@@ -17,13 +24,16 @@ exports.protect = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
 
     // verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, config.jwtSecret);
 
     // attach user data to request
     req.user = decoded;
 
     next();
   } catch (error) {
+    void error;
     next(appError('Unauthorized', 401));
   }
 };
+
+export { protect };

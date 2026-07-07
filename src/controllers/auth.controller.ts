@@ -1,0 +1,138 @@
+import type { NextFunction, Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import config from '../config/config';
+import User from '../models/User';
+import { ResponseCode } from '../types';
+import appError from '../utils/error';
+import logger from '../utils/logger';
+import {
+  loginSchema,
+  signupSchema,
+  type LoginDto,
+  type SignupDto,
+} from '../validations/auth.validation';
+
+const authLogger = logger.child({ module: 'auth.controller' });
+type SignupRequest = Request<Record<string, never>, unknown, SignupDto>;
+type LoginRequest = Request<Record<string, never>, unknown, LoginDto>;
+
+const signup = async (
+  req: SignupRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const parsedBody = signupSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      next(
+        appError(
+          parsedBody.error.issues.map((issue) => issue.message).join(', '),
+          400
+        )
+      );
+      return;
+    }
+
+    const { name, email, password } = parsedBody.data;
+
+    // check existing user
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      // const error = new Error("User already exists");
+      // error.statusCode = 400;
+      // return next(error);
+      authLogger.error({ email }, 'User already exists');
+      next(appError('User already exists', 400));
+      return;
+    }
+
+    // hash password
+    const hashedPassword = await bcrypt.hash(password, config.bcryptSaltRounds);
+
+    // create user
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
+
+    res.locals.response = {
+      code: ResponseCode.SIGNUP_SUCCESS,
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    };
+
+    next();
+    return;
+  } catch (error) {
+    authLogger.error({ err: error }, 'Registration failed');
+    next(appError('Registration failed', 500));
+  }
+};
+
+const login = async (
+  req: LoginRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const parsedBody = loginSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      next(
+        appError(
+          parsedBody.error.issues.map((issue) => issue.message).join(', '),
+          400
+        )
+      );
+      return;
+    }
+
+    const { email, password } = parsedBody.data;
+
+    // check if user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      authLogger.error({ email }, 'Invalid credentials');
+      next(appError('Invalid credentials', 400));
+      return;
+    }
+
+    // compare password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      authLogger.error({ email }, 'Invalid credentials');
+      next(appError('Invalid credentials', 400));
+      return;
+    }
+
+    // generate token
+    const token = jwt.sign({ id: user._id }, config.jwtSecret, {
+      expiresIn: config.jwtExpiresIn,
+    });
+
+    // pass standardized response payload to common middleware
+    res.locals.response = {
+      code: ResponseCode.LOGIN_SUCCESS,
+      data: {
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+        },
+      },
+    };
+
+    next();
+    return;
+  } catch (error) {
+    authLogger.error({ err: error }, 'Login failed');
+    next(appError('Login failed', 500));
+  }
+};
+
+export { signup, login };

@@ -13,14 +13,19 @@
   "license": "ISC",
   "author": "Ahonnish",
   "type": "commonjs",
-  "main": "src/server.js",
+  "main": "dist/server.js",
   "scripts": {
-    "dev": "node --watch src/server.js",
-    "lint": "eslint . --ext .js",
-    "lint:fix": "eslint . --ext .js --fix",
-    "format": "prettier . --write",
+    "dev": "tsx watch src/server.ts",
+    "dev:ts": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck:all": "npm run typecheck && tsc --noEmit -p tsconfig.jest.json",
+    "lint": "eslint . --ext .js,.ts",
+    "lint:fix": "eslint . --ext .js,.ts --fix",
+    "format": "prettier . --write && npm run lint:fix ",
     "format:check": "prettier . --check",
-    "start": "node src/server.js",
+    "start": "node dist/server.js",
+    "start:dist": "node dist/server.js",
     "test": "jest",
     "test:watch": "jest --watch"
   },
@@ -35,10 +40,20 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
     "eslint": "^8.57.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^10.1.8",
     "jest": "^30.4.2",
-    "prettier": "^3.9.3"
+    "prettier": "^3.9.3",
+    "ts-jest": "^29.4.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
   }
 }
