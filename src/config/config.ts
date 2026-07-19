@@ -1,14 +1,23 @@
-require('./env');
+import { env, environment, type RuntimeEnvironment } from './env';
 
-const environment = process.env.NODE_ENV || 'local';
-
-const sharedConfig = {
-  port: Number(process.env.PORT),
-  mongoUri: process.env.MONGO_URI,
-  jwtSecret: process.env.JWT_SECRET,
+type UrlConfig = {
+  thirdPartyApiUrls: {
+    paymentGateway: string;
+    shippingProvider: string;
+  };
 };
 
-const environmentConfig = {
+const sharedConfig = {
+  port: env.PORT,
+  mongoUri: env.MONGO_URI,
+  jwtSecret: env.JWT_SECRET,
+  jwtExpiresIn: env.JWT_EXPIRES_IN,
+  jwtAudience: env.JWT_AUDIENCE,
+  jwtIssuer: env.JWT_ISSUER,
+  bcryptSaltRounds: env.BCRYPT_SALT_ROUNDS,
+};
+
+const environmentConfig: Record<RuntimeEnvironment, UrlConfig> = {
   local: {
     thirdPartyApiUrls: {
       paymentGateway: 'http://localhost:4100/api',
@@ -29,8 +38,11 @@ const environmentConfig = {
   },
 };
 
-module.exports = {
+const config = {
   environment,
   ...sharedConfig,
   ...environmentConfig[environment],
 };
+
+export type AppConfig = typeof config;
+export default config;
