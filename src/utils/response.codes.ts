@@ -11,6 +11,10 @@ const RESPONSE_CODES: Record<ResponseCode, ResponseCodePreset> = {
     statusCode: StatusCodes.OK,
     message: 'User logged in successfully',
   },
+  [ResponseCode.UPDATE_PROFILE_SUCCESS]: {
+    statusCode: StatusCodes.OK,
+    message: 'Profile updated successfully',
+  },
   [ResponseCode.HEALTH_CHECK_SUCCESS]: {
     statusCode: StatusCodes.OK,
     message: 'Service is healthy',
@@ -21,15 +25,15 @@ const RESPONSE_CODES: Record<ResponseCode, ResponseCodePreset> = {
   },
   [ResponseCode.OK]: {
     statusCode: StatusCodes.OK,
-    message: 'Success'
-  }
+    message: 'Success',
+  },
 };
 
 const getResponseCodePreset = (
   code: ResponseCode | undefined
 ): ResponseCodePreset | undefined => {
   if (!code) {
-    return RESPONSE_CODES.OK
+    return RESPONSE_CODES.OK;
   }
 
   return RESPONSE_CODES[code];

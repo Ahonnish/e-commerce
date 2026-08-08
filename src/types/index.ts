@@ -15,9 +15,10 @@ export type JwtUserPayload = z.infer<typeof jwtUserPayloadSchema>;
 export enum ResponseCode {
   SIGNUP_SUCCESS = 'SIGNUP_SUCCESS',
   LOGIN_SUCCESS = 'LOGIN_SUCCESS',
+  UPDATE_PROFILE_SUCCESS = 'UPDATE_PROFILE_SUCCESS',
   HEALTH_CHECK_SUCCESS = 'HEALTH_CHECK_SUCCESS',
   NOT_FOUND = 'NOT_FOUND',
-  OK = 'OK'
+  OK = 'OK',
 }
 
 export interface ResponseCodePreset {
