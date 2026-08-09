@@ -22,6 +22,8 @@ type UpdateProfileRequest = Request<
   UpdateProfileDto
 >;
 
+const ALLOWED_PROFILE_FIELDS: (keyof UpdateProfileDto)[] = ['name'];
+
 const signup = async (
   req: SignupRequest,
   res: Response,
@@ -133,7 +135,7 @@ const updateProfile = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const userId = req.user?.sub;
+    const userId = req.user!.sub;
 
     const user = await User.findById(userId);
 
@@ -142,23 +144,10 @@ const updateProfile = async (
       return next(appError('User not found', 404));
     }
 
-    const { name, email } = req.body;
-
-    if (email !== undefined && email !== user.email) {
-      const existingUser = await User.findOne({ email });
-
-      if (existingUser) {
-        authLogger.error({ email }, 'Email already exists');
-        return next(appError('Email already exists', 400));
+    for (const field of ALLOWED_PROFILE_FIELDS) {
+      if (req.body[field] !== undefined) {
+        user[field] = req.body[field];
       }
-    }
-
-    if (name !== undefined) {
-      user.name = name;
-    }
-
-    if (email !== undefined) {
-      user.email = email;
     }
 
     await user.save();

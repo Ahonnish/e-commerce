@@ -13,20 +13,9 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
-const updateProfileSchema = z
-  .object({
-    name: z.string().trim().min(1, 'Name cannot be empty').optional(),
-
-    email: z
-      .string()
-      .trim()
-      .email('Please provide a valid email address')
-      .optional(),
-  })
-  .refine((data) => data.name !== undefined || data.email !== undefined, {
-    message: 'At least one field must be provided for update',
-    path: [],
-  });
+const updateProfileSchema = z.object({
+  name: z.string().trim().min(1, 'Name cannot be empty').optional(),
+});
 
 type SignupDto = z.infer<typeof signupSchema>;
 type LoginDto = z.infer<typeof loginSchema>;
