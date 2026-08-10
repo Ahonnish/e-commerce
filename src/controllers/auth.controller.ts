@@ -145,7 +145,7 @@ const updateProfile = async (
     }
 
     for (const field of ALLOWED_PROFILE_FIELDS) {
-      if (req.body[field] !== undefined) {
+      if (req.body[field]) {
         user[field] = req.body[field];
       }
     }
