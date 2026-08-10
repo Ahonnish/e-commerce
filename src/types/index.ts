@@ -17,7 +17,8 @@ export enum ResponseCode {
   LOGIN_SUCCESS = 'LOGIN_SUCCESS',
   HEALTH_CHECK_SUCCESS = 'HEALTH_CHECK_SUCCESS',
   NOT_FOUND = 'NOT_FOUND',
-  OK = 'OK'
+  FORGOT_PASSWORD_EMAIL_SENT = 'FORGOT_PASSWORD_EMAIL_SENT',
+  OK = 'OK',
 }
 
 export interface ResponseCodePreset {

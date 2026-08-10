@@ -19,6 +19,11 @@ const RESPONSE_CODES: Record<ResponseCode, ResponseCodePreset> = {
     statusCode: StatusCodes.NOT_FOUND,
     message: 'Resource not found',
   },
+  [ResponseCode.FORGOT_PASSWORD_EMAIL_SENT]: {
+    statusCode: StatusCodes.OK,
+    message:
+        'If an account with this email exists, a password reset link has been sent.',
+},
   [ResponseCode.OK]: {
     statusCode: StatusCodes.OK,
     message: 'Success'

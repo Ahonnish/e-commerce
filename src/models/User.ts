@@ -5,6 +5,9 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: string;
+
+  resetPasswordTokenHash?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,6 +26,13 @@ const userSchema = new mongoose.Schema<IUser>(
     password: {
       type: String,
       required: true,
+    },
+    resetPasswordTokenHash: {
+      type: String,
+    },
+
+    resetPasswordExpires: {
+      type: Date,
     },
     role: {
       type: String,
