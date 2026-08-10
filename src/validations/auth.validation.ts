@@ -13,8 +13,13 @@ const loginSchema = z.object({
   password: z.string().min(1, 'Password is required'),
 });
 
+const updateProfileSchema = z.object({
+  name: z.string().trim().min(1, 'Name cannot be empty').optional(),
+});
+
 type SignupDto = z.infer<typeof signupSchema>;
 type LoginDto = z.infer<typeof loginSchema>;
+type UpdateProfileDto = z.infer<typeof updateProfileSchema>;
 
-export { loginSchema, signupSchema };
-export type { LoginDto, SignupDto };
+export { loginSchema, signupSchema, updateProfileSchema };
+export type { LoginDto, SignupDto, UpdateProfileDto };

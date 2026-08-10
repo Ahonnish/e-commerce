@@ -9,11 +9,20 @@ import logger from '../utils/logger';
 import {
   type LoginDto,
   type SignupDto,
+  type UpdateProfileDto,
 } from '../validations/auth.validation';
 
 const authLogger = logger.child({ module: 'auth.controller' });
 type SignupRequest = Request<Record<string, never>, unknown, SignupDto>;
 type LoginRequest = Request<Record<string, never>, unknown, LoginDto>;
+
+type UpdateProfileRequest = Request<
+  Record<string, never>,
+  unknown,
+  UpdateProfileDto
+>;
+
+const ALLOWED_PROFILE_FIELDS: (keyof UpdateProfileDto)[] = ['name'];
 
 const signup = async (
   req: SignupRequest,
@@ -26,9 +35,6 @@ const signup = async (
     // check existing user
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      // const error = new Error("User already exists");
-      // error.statusCode = 400;
-      // return next(error);
       authLogger.error({ email }, 'User already exists');
       next(appError('User already exists', 400));
       return;
@@ -123,4 +129,44 @@ const login = async (
   }
 };
 
-export { signup, login };
+const updateProfile = async (
+  req: UpdateProfileRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const userId = req.user!.sub;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      authLogger.error({ userId }, 'User not found');
+      return next(appError('User not found', 404));
+    }
+
+    for (const field of ALLOWED_PROFILE_FIELDS) {
+      if (req.body[field]) {
+        user[field] = req.body[field];
+      }
+    }
+
+    await user.save();
+
+    res.locals.response = {
+      code: ResponseCode.UPDATE_PROFILE_SUCCESS,
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    };
+
+    return next();
+  } catch (error) {
+    authLogger.error({ err: error }, 'Update profile failed');
+    next(appError('Update profile failed', 500));
+  }
+};
+
+export { signup, login, updateProfile };
