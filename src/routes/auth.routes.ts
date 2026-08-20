@@ -1,11 +1,12 @@
 import express from 'express';
 import type { NextFunction, Request, Response } from 'express';
-import { forgotPassword, login, signup } from '../controllers/auth.controller';
+import { forgotPassword, login, resetPassword, signup } from '../controllers/auth.controller';
 import { protect } from '../middlewares/auth.middleware';
 import { validateBody } from '../middlewares/validation.middleware';
 import {
   forgotPasswordSchema,
   loginSchema,
+  resetPasswordSchema,
   signupSchema,
 } from '../validations/auth.validation';
 
@@ -18,6 +19,11 @@ router.post(
   validateBody(forgotPasswordSchema),
   forgotPassword
 );
+router.post(
+  '/reset-password',
+  validateBody(resetPasswordSchema),
+  resetPassword
+);  
 
 router.get(
   '/profile',

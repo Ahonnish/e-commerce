@@ -24,6 +24,10 @@ const RESPONSE_CODES: Record<ResponseCode, ResponseCodePreset> = {
     message:
         'If an account with this email exists, a password reset link has been sent.',
 },
+[ResponseCode.PASSWORD_RESET_SUCCESS]: {
+  statusCode: StatusCodes.OK,
+  message: 'Password has been reset successfully.',
+},
   [ResponseCode.OK]: {
     statusCode: StatusCodes.OK,
     message: 'Success'

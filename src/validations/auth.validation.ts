@@ -24,9 +24,21 @@ const forgotPasswordSchema = z
   })
   .strict();
 
+const resetPasswordSchema = z
+  .object({
+    token: z.string().trim().min(1, 'Reset token is required'),
+
+    newPassword: z
+      .string()
+      .min(8, 'Password must be at least 8 characters long'),
+  })
+  .strict();
+
+  
 type SignupDto = z.infer<typeof signupSchema>;
 type LoginDto = z.infer<typeof loginSchema>;
 type ForgotPasswordDto = z.infer<typeof forgotPasswordSchema>;
+type ResetPasswordDto = z.infer<typeof resetPasswordSchema>;
 
-export { forgotPasswordSchema, loginSchema, signupSchema };
-export type { ForgotPasswordDto, LoginDto, SignupDto };
+export { forgotPasswordSchema, loginSchema, resetPasswordSchema, signupSchema };
+export type { ForgotPasswordDto, LoginDto, ResetPasswordDto, SignupDto };

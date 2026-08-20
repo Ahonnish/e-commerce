@@ -10,17 +10,23 @@ import logger from '../utils/logger';
 import {
   type ForgotPasswordDto,
   type LoginDto,
+  type ResetPasswordDto,
   type SignupDto,
 } from '../validations/auth.validation';
 
 const authLogger = logger.child({ module: 'auth.controller' });
 type SignupRequest = Request<Record<string, never>, unknown, SignupDto>;
 type LoginRequest = Request<Record<string, never>, unknown, LoginDto>;
-
 type ForgotPasswordRequest = Request<
   Record<string, never>,
   unknown,
   ForgotPasswordDto
+>;
+
+type ResetPasswordRequest = Request<
+  Record<string, never>,
+  unknown,
+  ResetPasswordDto
 >;
 
 const signup = async (
@@ -79,7 +85,7 @@ const forgotPassword = async (
     if (user) {
       // generate reset token
       const resetToken = crypto.randomBytes(32).toString('hex');
-
+      
       // Hash the token
       const resetPasswordTokenHash = crypto
         .createHash('sha256') // Creates a SHA-256 hash instance.
@@ -110,6 +116,64 @@ const forgotPassword = async (
   } catch (error) {
     authLogger.error({ err: error }, 'Forgot password failed');
     next(appError('Forgot password failed', 500));
+    return;
+  }
+};
+
+const resetPassword = async (
+  req: ResetPasswordRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { token, newPassword } = req.body;
+
+    const resetPasswordTokenHash = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
+    // Find the user with a matching, non-expired reset token
+    const user = await User.findOne({
+      resetPasswordTokenHash,
+      resetPasswordExpires: {
+        $gt: new Date(),
+      },
+    });
+
+    // Token is invalid or has expired
+    if (!user) {
+      next(appError('Invalid or expired reset token', 400));
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      newPassword,
+      config.bcryptSaltRounds
+    );
+
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          password: hashedPassword,
+        },
+        $unset: {
+          resetPasswordTokenHash: '',
+          resetPasswordExpires: '',
+        },
+      }
+    );
+
+    res.locals.response = {
+      code: ResponseCode.PASSWORD_RESET_SUCCESS,
+    };
+
+    next();
+    return;
+  } catch (error) {
+    authLogger.error({ err: error }, 'Reset password failed');
+    next(appError('Reset password failed', 500));
     return;
   }
 };
@@ -175,4 +239,4 @@ const login = async (
   }
 };
 
-export { forgotPassword, signup, login };
+export { forgotPassword, resetPassword, signup, login };
