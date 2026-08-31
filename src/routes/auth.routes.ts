@@ -1,9 +1,9 @@
 import express from 'express';
 import type { NextFunction, Request, Response } from 'express';
-import { login, signup } from '../controllers/auth.controller';
+import { login, signup, changePassword } from '../controllers/auth.controller';
 import { protect } from '../middlewares/auth.middleware';
 import { validateBody } from '../middlewares/validation.middleware';
-import { loginSchema, signupSchema } from '../validations/auth.validation';
+import { loginSchema, signupSchema, changePasswordSchema } from '../validations/auth.validation';
 
 const router = express.Router();
 
@@ -23,6 +23,13 @@ router.get(
 
     next();
   }
+);
+
+router.put(
+  '/change-password',
+  protect,
+  validateBody(changePasswordSchema),
+  changePassword
 );
 
 export default router;
