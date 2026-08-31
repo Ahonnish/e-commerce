@@ -27,6 +27,7 @@ describe('protect', () => {
     const req = createRequest('Bearer valid-token');
     const res = {} as Response;
     const next = jest.fn() as NextFunction;
+
     const payload = {
       sub: 'user-123',
       aud: 'e-commerce-api',
@@ -43,6 +44,23 @@ describe('protect', () => {
     expect(next).toHaveBeenCalledWith();
   });
 
+  it('rejects unauthenticated requests without an authorization header', async () => {
+    const req = createRequest();
+    const res = {} as Response;
+    const next = jest.fn() as NextFunction;
+
+    await protect(req, res, next);
+
+    expect(req.user).toBeUndefined();
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Unauthorized',
+        statusCode: 401,
+      })
+    );
+  });
+
   it('rejects tokens whose payload does not match the request contract', async () => {
     const req = createRequest('Bearer invalid-token');
     const res = {} as Response;
@@ -53,6 +71,7 @@ describe('protect', () => {
     await protect(req, res, next);
 
     expect(req.user).toBeUndefined();
+
     expect(next).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'Unauthorized',

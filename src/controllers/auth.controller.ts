@@ -9,11 +9,17 @@ import logger from '../utils/logger';
 import {
   type LoginDto,
   type SignupDto,
+  type ChangePasswordDto,
 } from '../validations/auth.validation';
 
 const authLogger = logger.child({ module: 'auth.controller' });
 type SignupRequest = Request<Record<string, never>, unknown, SignupDto>;
 type LoginRequest = Request<Record<string, never>, unknown, LoginDto>;
+type ChangePasswordRequest = Request<
+  Record<string, never>,
+  unknown,
+  ChangePasswordDto
+>;
 
 const signup = async (
   req: SignupRequest,
@@ -123,4 +129,61 @@ const login = async (
   }
 };
 
-export { signup, login };
+const changePassword = async (
+  req: ChangePasswordRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    const userId = req.user?.sub;
+
+    if (!userId) {
+      next(appError('Unauthorized', 401));
+      return;
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      next(appError('Unauthorized', 401));
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isMatch) {
+      next(
+        appError(
+          'Current password is incorrect',
+          401,
+          ResponseCode.INVALID_CURRENT_PASSWORD
+        )
+      );
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      newPassword,
+      config.bcryptSaltRounds
+    );
+
+    user.password = hashedPassword;
+
+    await user.save();
+
+    res.locals.response = {
+      code: ResponseCode.CHANGE_PASSWORD_SUCCESS,
+      data: null,
+    };
+
+    next();
+    return;
+  } catch (error) {
+    authLogger.error({ err: error }, 'Change password failed');
+    next(appError('Change password failed', 500));
+  }
+};
+
+export { signup, login, changePassword };
