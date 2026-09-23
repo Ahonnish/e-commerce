@@ -3,7 +3,7 @@ import mongoose, { Document, Model } from 'mongoose';
 export interface ICategory extends Document {
   name: string;
   slug: string;
-  parentCategory?: mongoose.Types.ObjectId;
+  categoryId?: mongoose.Types.ObjectId;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -21,7 +21,7 @@ const categorySchema = new mongoose.Schema<ICategory>(
       required: true,
       unique: true,
     },
-    parentCategory: {
+    categoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'category',
     },
